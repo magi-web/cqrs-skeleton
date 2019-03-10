@@ -1,0 +1,41 @@
+services:
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+  App\:
+    resource: '../../src/*'
+    exclude: '../../src/**/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+  App\Core\DDD\Clock\SystemClock: ~
+  App\Core\DDD\Clock\Clock: '@App\Core\DDD\Clock\SystemClock'
+  clock: '@App\Core\DDD\Clock\Clock'
+
+  # controllers are imported separately to make sure services can be injected
+  # as action arguments even if you don't extend any base controller class
+  App\Core\Infrastructure\Controller\Web\:
+    resource: '../../src/Core/Infrastructure/Controller/Web'
+    tags: ['controller.service_arguments']
+
+  App\Core\Infrastructure\CommandBus:
+    factory: 'App\Core\Service\CommandBusFactory:build'
+    arguments:
+      - !tagged 'ddd.command_handler'
+      - !tagged 'ddd.command_bus_middleware'
+    lazy: true
+
+  App\Core\Infrastructure\EventBus:
+    arguments: [!tagged ddd.event_handler]
+    lazy: true
+
+  App\Core\DDD\Query\QueryBus:
+    arguments: [!tagged ddd.query_handler]
+    lazy: true
+
+  App\Core\Middleware\LoggerBusMiddleware:
+    tags:
+      - { name: 'ddd.command_bus_middleware', priority: 10 }
+
+  App\Core\Middleware\EventBusMiddleware:
+    tags:
+      - { name: 'ddd.command_bus_middleware', priority: 20 }
