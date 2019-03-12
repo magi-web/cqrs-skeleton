@@ -32,10 +32,14 @@ services:
     arguments: [!tagged ddd.query_handler]
     lazy: true
 
-  App\Core\Middleware\LoggerBusMiddleware:
+  App\Core\Infrastructure\Middleware\LoggerBusMiddleware:
     tags:
       - { name: 'ddd.command_bus_middleware', priority: 10 }
 
-  App\Core\Middleware\EventBusMiddleware:
+  App\Core\Infrastructure\Middleware\DoctrineFlushBusMiddleware:
     tags:
       - { name: 'ddd.command_bus_middleware', priority: 20 }
+
+  App\Core\Infrastructure\Middleware\EventBusMiddleware:
+    tags:
+      - { name: 'ddd.command_bus_middleware', priority: 30 }

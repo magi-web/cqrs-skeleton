@@ -41,11 +41,6 @@ class QueryBus
     {
         $queryClass = get_class($query);
 
-        $parentClass = get_parent_class($query);
-        if (array_key_exists($queryClass, $this->handlers) === false && !empty($parentClass)) {
-            $queryClass = $parentClass;
-        }
-
         if (array_key_exists($queryClass, $this->handlers) === false) {
             throw new \LogicException("No handler found for $queryClass");
         }
